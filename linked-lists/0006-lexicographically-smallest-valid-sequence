@@ -1,46 +1,22 @@
-class Solution:
-    def validSequence(self, word1: str, word2: str):
-        n = len(word1)
-        m = len(word2)
+import pandas as pd
 
-        # last[j] = index in word1 used to match
-        # word2[j:] as far to the right as possible.
-        last = [-1] * m
+def big_countries(world: pd.DataFrame) -> pd.DataFrame:
+    # Filter rows using OR (|) and return only required columns
+    return world[
+        (world["area"] >= 3000000) | (world["population"] >= 25000000)
+    ][["name", "population", "area"]]
 
-        i = n - 1
-        j = m - 1
 
-        while i >= 0 and j >= 0:
-            if word1[i] == word2[j]:
-                last[j] = i
-                j -= 1
-            i -= 1
+# --- Create the test table (World DataFrame) ---
+data = {
+    'name': ['Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola'],
+    'continent': ['Asia', 'Europe', 'Africa', 'Europe', 'Africa'],
+    'area': [652230, 28748, 2381741, 468, 1246700],
+    'population': [25500100, 2831741, 37100000, 78115, 20609294],
+    'gdp': [20343000000, 12960000000, 188681000000, 371200000, 100990000000]
+}
 
-        ans = [0] * m
+world_df = pd.DataFrame(data)
 
-        # Whether we have already used our one mismatch.
-        can_skip = True
-
-        j = 0
-
-        for i in range(n):
-            if j == m:
-                break
-
-            # Exact match
-            if word1[i] == word2[j]:
-                ans[j] = i
-                j += 1
-
-            # Use this position as the one mismatch
-            elif can_skip and (
-                j == m - 1 or i < last[j + 1]
-            ):
-                ans[j] = i
-                j += 1
-                can_skip = False
-
-        if j != m:
-            return []
-
-        return ans
+# --- Call the function and print the output table ---
+print(big_countries(world_df))
