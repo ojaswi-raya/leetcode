@@ -1,0 +1,85 @@
+class SegmentTree:
+    def __init__(self, s: str):
+        self.n = len(s)
+        self.s = list(s)
+        # Tree size setup
+        self.max_len = [0] * (4 * self.n)
+        self.prefix_len = [0] * (4 * self.n)
+        self.suffix_len = [0] * (4 * self.n)
+        self.left_char = [''] * (4 * self.n)
+        self.right_char = [''] * (4 * self.n)
+        
+        self._build(1, 0, self.n - 1)
+
+    def _push_up(self, node: int, l: int, r: int):
+        mid = (l + r) // 2
+        left_child, right_child = 2 * node, 2 * node + 1
+        left_len = mid - l + 1
+        right_len = r - mid
+
+        self.left_char[node] = self.left_char[left_child]
+        self.right_char[node] = self.right_char[right_child]
+
+        # Base prefix/suffix lengths
+        self.prefix_len[node] = self.prefix_len[left_child]
+        self.suffix_len[node] = self.suffix_len[right_child]
+        
+        # Base max length
+        self.max_len[node] = max(self.max_len[left_child], self.max_len[right_child])
+
+        # If adjacent boundary characters match
+        if self.right_char[left_child] == self.left_char[right_child]:
+            self.max_len[node] = max(
+                self.max_len[node], 
+                self.suffix_len[left_child] + self.prefix_len[right_child]
+            )
+            
+            # Extend prefix length if left child is entirely uniform
+            if self.prefix_len[left_child] == left_len:
+                self.prefix_len[node] = left_len + self.prefix_len[right_child]
+                
+            # Extend suffix length if right child is entirely uniform
+            if self.suffix_len[right_child] == right_len:
+                self.suffix_len[node] = right_len + self.suffix_len[left_child]
+
+    def _build(self, node: int, l: int, r: int):
+        if l == r:
+            self.max_len[node] = 1
+            self.prefix_len[node] = 1
+            self.suffix_len[node] = 1
+            self.left_char[node] = self.s[l]
+            self.right_char[node] = self.s[l]
+            return
+
+        mid = (l + r) // 2
+        self._build(2 * node, l, mid)
+        self._build(2 * node + 1, mid + 1, r)
+        self._push_up(node, l, r)
+
+    def update(self, node: int, l: int, r: int, idx: int, ch: str):
+        if l == r:
+            self.s[idx] = ch
+            self.left_char[node] = ch
+            self.right_char[node] = ch
+            return
+
+        mid = (l + r) // 2
+        if idx <= mid:
+            self.update(2 * node, l, mid, idx, ch)
+        else:
+            self.update(2 * node + 1, mid + 1, r, idx, ch)
+
+        self._push_up(node, l, r)
+
+
+class Solution:
+    def longestRepeating(self, s: str, queryCharacters: str, queryIndices: list[int]) -> list[int]:
+        tree = SegmentTree(s)
+        ans = []
+
+        for ch, idx in zip(queryCharacters, queryIndices):
+            tree.update(1, 0, tree.n - 1, idx, ch)
+            # Root node (index 1) stores the global answer
+            ans.append(tree.max_len[1])
+
+        return ans
