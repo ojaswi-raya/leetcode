@@ -1,0 +1,33 @@
+class Solution:
+    def divide(self, dividend: int, divisor: int) -> int:
+        # Constants for 32-bit signed integer limits
+        MAX_INT = 2**31 - 1
+        MIN_INT = -2**31
+
+        # Handle overflow edge case
+        if dividend == MIN_INT and divisor == -1:
+            return MAX_INT
+
+        # Determine the sign of the result
+        negative = (dividend < 0) ^ (divisor < 0)
+
+        # Work with positive absolute values
+        a, b = abs(dividend), abs(divisor)
+        quotient = 0
+
+        # Bitwise division process
+        while a >= b:
+            temp_b = b
+            multiple = 1
+            # Double temp_b as much as possible while it stays <= a
+            while a >= (temp_b << 1):
+                temp_b <<= 1
+                multiple <<= 1
+
+            # Subtract largest doubled value and accumulate quotient
+            a -= temp_b
+            quotient += multiple
+
+        # Apply sign and clamp within 32-bit signed integer bounds
+        quotient = -quotient if negative else quotient
+        return max(MIN_INT, min(MAX_INT, quotient))
