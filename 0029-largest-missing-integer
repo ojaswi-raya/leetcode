@@ -1,5 +1,5 @@
 class Solution:
-    def largestAlmostMissingInteger(self, nums: list[int], k: int) -> int:
+    def largestInteger(self, nums: list[int], k: int) -> int:
         n = len(nums)
         
         # Case 1: k equals array length -> entire array is the only subarray
