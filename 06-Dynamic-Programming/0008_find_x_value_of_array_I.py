@@ -1,5 +1,5 @@
 class Solution:
-    def countSubarraysModuloK(self, nums: list[int], k: int) -> list[int]:
+    def resultArray(self, nums: list[int], k: int) -> list[int]:
         result = [0] * k
         
         # dp[r] stores the number of subarrays ending at the previous index with product % k == r
